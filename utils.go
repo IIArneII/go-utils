@@ -69,3 +69,71 @@ func FindE[I any, L ~[]I](items L, f func(I) (bool, error)) (i I, ok bool, err e
 	}
 	return i, false, nil
 }
+
+func Filter[I any, L ~[]I](items L, f func(I) bool) []I {
+	res := make([]I, 0, len(items)/2)
+	for _, i := range items {
+		if f(i) {
+			res = append(res, i)
+		}
+	}
+	return res
+}
+
+func FilterE[I any, L ~[]I](items L, f func(I) (bool, error)) ([]I, error) {
+	res := make([]I, 0, len(items)/2)
+	for _, i := range items {
+		ok, err := f(i)
+		if err != nil {
+			return nil, err
+		}
+		if ok {
+			res = append(res, i)
+		}
+	}
+	return res, nil
+}
+
+func All[I any, L ~[]I](items L, f func(I) bool) bool {
+	for _, i := range items {
+		if !f(i) {
+			return false
+		}
+	}
+	return true
+}
+
+func AllE[I any, L ~[]I](items L, f func(I) (bool, error)) (bool, error) {
+	for _, i := range items {
+		ok, err := f(i)
+		if err != nil {
+			return false, err
+		}
+		if !ok {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+func Any[I any, L ~[]I](items L, f func(I) bool) bool {
+	for _, i := range items {
+		if f(i) {
+			return true
+		}
+	}
+	return false
+}
+
+func AnyE[I any, L ~[]I](items L, f func(I) (bool, error)) (bool, error) {
+	for _, i := range items {
+		ok, err := f(i)
+		if err != nil {
+			return false, err
+		}
+		if ok {
+			return true, nil
+		}
+	}
+	return false, nil
+}
