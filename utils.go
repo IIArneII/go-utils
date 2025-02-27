@@ -137,3 +137,24 @@ func AnyE[I any, L ~[]I](items L, f func(I) (bool, error)) (bool, error) {
 	}
 	return false, nil
 }
+
+func Reduce[I any, L ~[]I, R any](items L, f func(R, I) R, initial R) R {
+	res := initial
+	for _, i := range items {
+		res = f(res, i)
+	}
+	return res
+}
+
+func ReduceE[I any, L ~[]I, R any](items L, f func(R, I) (R, error), initial R) (R, error) {
+	var err error
+
+	res := initial
+	for _, i := range items {
+		res, err = f(res, i)
+		if err != nil {
+			return initial, err
+		}
+	}
+	return res, nil
+}
