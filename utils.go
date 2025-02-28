@@ -158,3 +158,61 @@ func ReduceE[I any, L ~[]I, R any](items L, f func(R, I) (R, error), initial R) 
 	}
 	return res, nil
 }
+
+func ArrayIntersection[I comparable, L ~[]I](slices ...L) L {
+	if len(slices) == 0 {
+		return make(L, 0)
+	}
+
+	if len(slices) == 1 {
+		return slices[0]
+	}
+
+	shortestIdx := 0
+	for i := 1; i < len(slices); i++ {
+		if len(slices[i]) < len(slices[shortestIdx]) {
+			shortestIdx = i
+		}
+	}
+
+	if shortestIdx != 0 {
+		slices[0], slices[shortestIdx] = slices[shortestIdx], slices[0]
+	}
+
+	candidates := make(map[I]struct{}, len(slices[0]))
+	for _, item := range slices[0] {
+		candidates[item] = struct{}{}
+	}
+
+	if len(candidates) == 0 {
+		return make(L, 0)
+	}
+
+	for i := 1; i < len(slices); i++ {
+		current := make(map[I]struct{})
+
+		if len(candidates) == 0 {
+			return make(L, 0)
+		}
+
+		for _, item := range slices[i] {
+			if _, exists := candidates[item]; exists {
+				current[item] = struct{}{}
+			}
+		}
+
+		candidates = current
+	}
+
+	result := make(L, 0, len(candidates))
+	if len(candidates) > 0 {
+		for _, item := range slices[0] {
+			if _, exists := candidates[item]; exists {
+				result = append(result, item)
+				delete(candidates, item)
+			}
+		}
+	}
+
+	return result
+}
