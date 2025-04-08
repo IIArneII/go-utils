@@ -111,3 +111,39 @@ func Intersection[I comparable, L ~[]I](items1 L, items2 L) map[I]struct{} {
 
 	return items
 }
+
+func Set[I any, L ~[]I, K comparable](items L, f func(I) K) map[K]struct{} {
+	res := make(map[K]struct{}, len(items))
+	for _, i := range items {
+		res[f(i)] = struct{}{}
+	}
+	return res
+}
+
+func SetE[I any, L ~[]I, K comparable](items L, f func(I) (K, error)) (map[K]struct{}, error) {
+	res := make(map[K]struct{}, len(items))
+	for _, i := range items {
+		k, err := f(i)
+		if err != nil {
+			return nil, err
+		}
+		res[k] = struct{}{}
+	}
+	return res, nil
+}
+
+func MapKeys[K comparable, V any](items map[K]V) []K {
+	keys := make([]K, 0, len(items))
+	for k := range items {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func MapValues[K comparable, V any](items map[K]V) []V {
+	values := make([]V, 0, len(items))
+	for _, v := range items {
+		values = append(values, v)
+	}
+	return values
+}
